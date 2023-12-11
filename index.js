@@ -72,7 +72,7 @@ async function run() {
 
                 console.log('Email sent successfully');
 
-                res.send(result);;
+                res.send(result);
             } catch (error) {
                 console.error('Error processing submission:', error);
                 res.status(500).json({ message: 'Internal server error' });
