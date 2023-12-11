@@ -50,8 +50,8 @@ async function run() {
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
-                user: 'asifahammednishst@gmail.com', // replace with your Gmail address
-                pass: 'hckm gzry wwih oyfs', // replace with your Gmail password or use an app password
+                user: process.env.MY_EMAIL, // replace with your Gmail address
+                pass: process.env.MY_PASS, // replace with your Gmail password or use an app password
             },
         });
         // send Email 
