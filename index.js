@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
+const nodemailer = require('nodemailer');
 require('dotenv').config();
+const bodyParser = require('body-parser');
 // require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
@@ -9,6 +11,7 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
+app.use(bodyParser.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.7ylhegt.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -22,10 +25,13 @@ const client = new MongoClient(uri, {
     }
 });
 
+
+
 async function run() {
     try {
 
         const ProjectCollection = client.db('AsifAhammed').collection('Projects');
+        const MessageCollection = client.db('AsifAhammed').collection('messege');
 
 
         app.get('/projects', async (req, res) => {
@@ -39,7 +45,39 @@ async function run() {
             const query = { _id: new ObjectId(id) };
             const result = await ProjectCollection.findOne(query);
             res.send(result);
-        })
+        });
+        // nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'asifahammednishst@gmail.com', // replace with your Gmail address
+                pass: 'hckm gzry wwih oyfs', // replace with your Gmail password or use an app password
+            },
+        });
+        // send Email 
+        app.post('/submit', async (req, res) => {
+            try {
+                const { name, email, message } = req.body;
+
+                // Save submission to MongoDB
+                const result = await MessageCollection.insertOne({ name, email, message });
+
+                // Send email
+                await transporter.sendMail({
+                    from: email, // replace with your Gmail address
+                    to: 'asifahammednishst@gmail.com', // replace with the actual recipient email address
+                    subject: 'New Contact Form Submission',
+                    text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
+                });
+
+                console.log('Email sent successfully');
+
+                res.send(result);;
+            } catch (error) {
+                console.error('Error processing submission:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        });
 
 
         await client.db("admin").command({ ping: 1 });
