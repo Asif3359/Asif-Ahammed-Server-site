@@ -40,6 +40,11 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        app.get('/users', async (req, res) => {
+            const cursor = userCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
         //get one  Project
         app.get('/projects/:id', async (req, res) => {
             const id = req.params.id;
@@ -82,7 +87,7 @@ async function run() {
 
         app.post('/users', async (req, res) => {
             const user = req.body;
-            
+            console.log(user);
             const query = { email: user.email }
             const existingUser = await userCollection.findOne(query);
             if (existingUser) {
