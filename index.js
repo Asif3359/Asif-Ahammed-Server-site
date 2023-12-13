@@ -32,6 +32,7 @@ async function run() {
 
         const ProjectCollection = client.db('AsifAhammed').collection('Projects');
         const MessageCollection = client.db('AsifAhammed').collection('messege');
+        const userCollection = client.db('AsifAhammed').collection('user');
 
 
         app.get('/projects', async (req, res) => {
@@ -77,6 +78,18 @@ async function run() {
                 console.error('Error processing submission:', error);
                 res.status(500).json({ message: 'Internal server error' });
             }
+        });
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            
+            const query = { email: user.email }
+            const existingUser = await userCollection.findOne(query);
+            if (existingUser) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await userCollection.insertOne(user);
+            res.send(result);
         });
 
 
