@@ -34,6 +34,7 @@ async function run() {
         const MessageCollection = client.db('AsifAhammed').collection('messege');
         const ReplayCollection = client.db('AsifAhammed').collection('replay');
         const userCollection = client.db('AsifAhammed').collection('user');
+        const questionCollection = client.db('AsifAhammed').collection('question');
 
 
         app.get('/projects', async (req, res) => {
@@ -48,6 +49,11 @@ async function run() {
         })
         app.get('/message', async (req, res) => {
             const cursor = MessageCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+        app.get('/question', async (req, res) => {
+            const cursor = questionCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
@@ -76,10 +82,10 @@ async function run() {
         // send Email 
         app.post('/submit', async (req, res) => {
             try {
-                const { name, email, message } = req.body;
+                const { name, email, message, selectStatus, replayStatus } = req.body;
 
                 // Save submission to MongoDB
-                const result = await MessageCollection.insertOne({ name, email, message });
+                const result = await MessageCollection.insertOne({ name, email, message, selectStatus, replayStatus });
 
                 // Send email
                 await transporter.sendMail({
@@ -168,6 +174,19 @@ async function run() {
                 return res.send({ message: 'user already exists', insertedId: null })
             }
             const result = await userCollection.insertOne(user);
+            res.send(result);
+        });
+
+        // question
+        app.post('/question', async (req, res) => {
+            const question = req.body;
+
+            const query = { emailID: question.emailID }
+            const existSelect = await questionCollection.findOne(query);
+            if (existSelect) {
+                return res.send({ message: 'user already exists', insertedId: null })
+            }
+            const result = await questionCollection.insertOne(question);
             res.send(result);
         });
 
