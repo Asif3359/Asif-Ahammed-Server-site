@@ -106,10 +106,10 @@ async function run() {
         // send Email 
         app.post('/replay', async (req, res) => {
             try {
-                const { email, subject, message } = req.body;
+                const { email, subject, message,submitEmail } = req.body;
 
                 // Save submission to MongoDB
-                const result = await ReplayCollection.insertOne({ subject, email, message });
+                const result = await ReplayCollection.insertOne({ subject, email, message,submitEmail });
 
                 // Send email
                 await transporter.sendMail({
