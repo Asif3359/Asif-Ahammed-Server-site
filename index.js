@@ -32,6 +32,7 @@ async function run() {
 
         const ProjectCollection = client.db('AsifAhammed').collection('Projects');
         const MessageCollection = client.db('AsifAhammed').collection('messege');
+        const ReplayCollection = client.db('AsifAhammed').collection('replay');
         const userCollection = client.db('AsifAhammed').collection('user');
 
 
@@ -45,11 +46,23 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        app.get('/message', async (req, res) => {
+            const cursor = MessageCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
         //get one  Project
         app.get('/projects/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await ProjectCollection.findOne(query);
+            res.send(result);
+        });
+        //get one  Project
+        app.get('/message/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await MessageCollection.findOne(query);
             res.send(result);
         });
         // nodemailer
@@ -84,10 +97,71 @@ async function run() {
                 res.status(500).json({ message: 'Internal server error' });
             }
         });
+        // send Email 
+        app.post('/replay', async (req, res) => {
+            try {
+                const { email, subject, message } = req.body;
+
+                // Save submission to MongoDB
+                const result = await ReplayCollection.insertOne({ subject, email, message });
+
+                // Send email
+                await transporter.sendMail({
+                    from: 'asifahammednishst@gmail.com', // replace with your Gmail address
+                    to: email, // replace with the actual recipient email address
+                    subject: subject,
+                    html: `
+                            <html>
+                                <head>
+                                    <style>
+                                        body {
+                                            font-family: 'Arial', sans-serif;
+                                        }
+                                        .email-container {
+                                            max-width: 600px;
+                                            margin: 0 auto;
+                                            padding: 20px;
+                                            background-color: #f4f4f4;
+                                            border-radius: 8px;
+                                        }
+                                        .email-header {
+                                            font-size: 18px;
+                                            font-weight: bold;
+                                            color: #333;
+                                            margin-bottom: 10px;
+                                        }
+                                        .email-content {
+                                            font-size: 16px;
+                                            color: #555;
+                                            line-height: 1.6;
+                                        }
+                                    </style>
+                                </head>
+                                <body>
+                                    <div class="email-container">
+                                        <div class="email-header">Subject: ${subject}</div>
+                                        <div class="email-content">
+                                            <p>Email: asifahammednishst@gmail.com</p>
+                                            <p>Message: ${message}</p>
+                                        </div>
+                                    </div>
+                                </body>
+                            </html>
+                        `,
+                });
+
+                console.log('Email sent successfully');
+
+                res.send({ message: 'Email Send Successfully' });
+            } catch (error) {
+                console.error('Error processing submission:', error);
+                res.status(500).json({ message: 'Internal server error' });
+            }
+        });
 
         app.post('/users', async (req, res) => {
             const user = req.body;
-            console.log(user);
+            // console.log(user);
             const query = { email: user.email }
             const existingUser = await userCollection.findOne(query);
             if (existingUser) {
