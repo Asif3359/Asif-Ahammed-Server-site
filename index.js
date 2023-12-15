@@ -111,11 +111,11 @@ async function run() {
         // send Email 
         app.post('/replay', async (req, res) => {
             try {
-                const { email, subject, message,submitEmail } = req.body;
+                const { email, subject, message, submitEmail } = req.body;
 
                 // Save submission to MongoDB
-                const myEmail='asifahammednishst@gmail.com'
-                const result = await ReplayCollection.insertOne({ subject, email, message,submitEmail,myEmail });
+                const myEmail = 'asifahammednishst@gmail.com'
+                const result = await ReplayCollection.insertOne({ subject, email, message, submitEmail, myEmail });
 
                 // Send email
                 await transporter.sendMail({
@@ -168,6 +168,23 @@ async function run() {
             } catch (error) {
                 console.error('Error processing submission:', error);
                 res.status(500).json({ message: 'Internal server error' });
+            }
+        });
+        // update 
+        app.patch('/updateStatus/:id', async (req, res) => {
+            try {
+                const id = req.params.id;
+
+                const updatedReplay = await ReplayCollection.findOneAndUpdate(
+                    { _id: new ObjectId(id) }, // Assuming your id is a valid ObjectId
+                    { $set: { selectStatus: true } },
+                    { returnDocument: 'after' } // To get the updated document
+                );
+
+                res.json(updatedReplay.value);
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ error: 'Internal Server Error' });
             }
         });
 
