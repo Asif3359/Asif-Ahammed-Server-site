@@ -204,7 +204,7 @@ async function run() {
         app.post('/question', async (req, res) => {
             const question = req.body;
 
-            const query = { emailID: question.emailID }
+            const query = { selectId: question.selectId }
             const existSelect = await questionCollection.findOne(query);
             if (existSelect) {
                 return res.send({ message: 'user already exists', insertedId: null })
