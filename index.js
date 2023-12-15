@@ -114,7 +114,8 @@ async function run() {
                 const { email, subject, message,submitEmail } = req.body;
 
                 // Save submission to MongoDB
-                const result = await ReplayCollection.insertOne({ subject, email, message,submitEmail });
+                const myEmail='asifahammednishst@gmail.com'
+                const result = await ReplayCollection.insertOne({ subject, email, message,submitEmail,myEmail });
 
                 // Send email
                 await transporter.sendMail({
