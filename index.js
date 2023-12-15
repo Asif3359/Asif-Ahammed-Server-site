@@ -57,6 +57,11 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
+        app.get('/replay', async (req, res) => {
+            const cursor = ReplayCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
         //get one  Project
         app.get('/projects/:id', async (req, res) => {
             const id = req.params.id;
