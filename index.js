@@ -214,6 +214,24 @@ async function run() {
         });
 
 
+        app.delete('/messages/:id', async (req, res) => {
+            try {
+
+                const result = await MessageCollection.deleteOne({ _id: new ObjectId(req.params.id) });
+
+                if (result.deletedCount === 1) {
+                    res.status(200).json({ message: 'Message deleted successfully' });
+                } else {
+                    res.status(404).json({ message: 'Message not found' });
+                }
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ message: 'Internal Server Error' });
+            }
+        });
+
+
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
